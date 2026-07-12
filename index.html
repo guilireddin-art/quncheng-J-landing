@@ -417,7 +417,15 @@ button,input,select{font-family:inherit}
     updateStepUI();
   };
 
-  document.getElementById('startBtn').addEventListener('click', window.__startJForm);
+  document.getElementById('startBtn').addEventListener('click', () => {
+    Promise.resolve(window.PAGE_CONFIG_READY)
+      .then(() => window.trackTikTokEvent?.('ClickButton', {
+        content_type: 'loan_application',
+        content_name: 'J版立即免費評估'
+      }))
+      .catch(error => console.warn('TikTok ClickButton event error:', error));
+    window.__startJForm();
+  });
 
   document.querySelectorAll('#amountChips .chip').forEach(btn => {
     btn.addEventListener('click', () => {
