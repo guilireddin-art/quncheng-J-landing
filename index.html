@@ -137,7 +137,7 @@ button,input,select{font-family:inherit}
 <body>
 <div class="shell">
   <header class="top">
-    <div class="brand"><div class="logo">試算</div><span data-company-name>線上額度試算</span></div>
+    <div class="brand"><div class="logo" data-company-logo>試算</div><span data-company-name>線上額度試算</span></div>
     <div class="online"><span class="dot"></span>線上試算中</div>
   </header>
 
@@ -302,6 +302,8 @@ button,input,select{font-family:inherit}
     document.getElementById('lineBtn').href = ENTERPRISE_LINE_URL;
     if(config.company_name){
       document.querySelectorAll('[data-company-name]').forEach(el => el.textContent = config.company_name);
+      const logoText = Array.from(String(config.company_name).replace(/\s+/g, '')).slice(0, 2).join('');
+      document.querySelectorAll('[data-company-logo]').forEach(el => el.textContent = logoText || '試算');
     }
   }
 
