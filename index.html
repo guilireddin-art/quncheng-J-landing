@@ -103,6 +103,7 @@ button,input,select{font-family:inherit}
 .back,.next{border:0;border-radius:14px;padding:15px 12px;font-size:16px;font-weight:900;cursor:pointer}
 .back{width:34%;background:#eef2f7;color:#475569}
 .next{flex:1;background:linear-gradient(100deg,#ffad16,#ff4d0a);color:#fff;box-shadow:0 9px 20px rgba(255,91,12,.24)}
+.next:disabled{cursor:not-allowed;opacity:.52;box-shadow:none;filter:grayscale(.18)}
 .next.green{background:linear-gradient(100deg,#08bcdc,#0758d8)}
 .loading{position:fixed;inset:0;background:rgba(15,23,42,.58);z-index:80;display:none;align-items:center;justify-content:center;padding:24px}
 .loading.show{display:flex}
@@ -236,6 +237,7 @@ button,input,select{font-family:inherit}
             <p class="form-desc">以下資料只用於初步評估。</p>
             <label class="field-label">銀行是否為警示戶？ *</label>
             <div class="yn" data-group="is_warning"><button class="chip" type="button" data-value="是">是</button><button class="chip" type="button" data-value="否">否</button></div>
+            <div id="warningError" class="error">警示戶目前無法辦理，請先向銀行確認警示戶狀態。</div>
             <label class="field-label">是否有個人外幣帳戶？ *</label>
             <div class="yn" data-group="has_foreign"><button class="chip" type="button" data-value="是">是</button><button class="chip" type="button" data-value="否">否</button></div>
             <label class="field-label">是否有信貸、房貸、汽貸或機貸？ *</label>
@@ -452,6 +454,11 @@ button,input,select{font-family:inherit}
         btn.classList.add('selected');
         answers[group.dataset.group] = btn.dataset.value;
         document.getElementById('ynErr').style.display = 'none';
+        if(group.dataset.group === 'is_warning'){
+          const blocked = btn.dataset.value === '是';
+          document.getElementById('warningError').style.display = blocked ? 'block' : 'none';
+          document.getElementById('nextBtn').disabled = blocked;
+        }
       });
     });
   });
@@ -469,12 +476,14 @@ button,input,select{font-family:inherit}
     const nextBtn = document.getElementById('nextBtn');
     nextBtn.textContent = currentStep < 3 ? '下一步' : '送出評估申請';
     nextBtn.classList.toggle('green', currentStep === 3);
+    nextBtn.disabled = currentStep === 3 && answers.is_warning === '是';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function validateStep(){
     document.getElementById('amountErr').style.display = 'none';
     document.getElementById('ynErr').style.display = 'none';
+    document.getElementById('warningError').style.display = 'none';
     document.getElementById('submitErr').style.display = 'none';
     const form = document.getElementById('loanForm');
     if(currentStep === 1){
@@ -496,6 +505,10 @@ button,input,select{font-family:inherit}
     const required = ['is_warning','has_foreign','has_loan','has_debt'];
     const ok = required.every(key => answers[key]);
     if(!ok) document.getElementById('ynErr').style.display = 'block';
+    if(answers.is_warning === '是'){
+      document.getElementById('warningError').style.display = 'block';
+      return false;
+    }
     return ok;
   }
 
@@ -515,7 +528,7 @@ button,input,select{font-family:inherit}
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
     if(answers.is_warning === '是'){
-      showBlockedResult(String(data.name || '').trim());
+      document.getElementById('warningError').style.display = 'block';
       return;
     }
     const leadId = createLeadId();
