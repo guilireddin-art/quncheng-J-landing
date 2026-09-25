@@ -571,6 +571,10 @@
         content_name: 'J版立即免費評估'
       }))
       .catch(error => console.warn('TikTok ClickButton event error:', error));
+    window.trackPageEvent?.('InitiateCheckout', {
+      content_name: 'J版試算後申請',
+      content_category: '貸款試算'
+    });
     showScreen('formScreen');
     currentStep = 1;
     updateStepUI();
@@ -747,6 +751,7 @@
   document.getElementById('lineBtn').addEventListener('click', () => {
     trackLineClick();
     window.trackPageEvent?.('Contact', { content_name: 'J版加入LINE' });
+    window.trackPageEvent?.('LineAddFriend', { content_name: 'J版加入LINE', content_category: '貸款引流' });
     window.trackTikTokEvent?.('Contact', { content_type: 'line_click' });
   });
 
